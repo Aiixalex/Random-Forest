@@ -7,9 +7,9 @@ def parse_args():
     parser.add_argument('--n-classifiers', type=int,
                         help='number of features to use in a tree',
                         default=1)
-    parser.add_argument('--train-data', type=str, default='data.csv',
+    parser.add_argument('--train-data', type=str, default='data/train.csv',
                         help='train data path')
-    parser.add_argument('--test-data', type=str, default='data.csv',
+    parser.add_argument('--test-data', type=str, default='data/test.csv',
                         help='test data path')
     parser.add_argument('--criterion', type=str, default='entropy',
                         help='criterion to use to split nodes. Should be either gini or entropy.')

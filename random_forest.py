@@ -5,7 +5,7 @@ import random
 
 
 class Node(object):
-    def __init__(self, node_size: int, node_class: str, depth: int, single_class:bool = False):
+    def __init__(self, node_size: int, node_class: str, depth: int, single_class: bool = False):
         # Every node is a leaf unless you set its 'children'
         self.is_leaf = True
         # Each 'decision node' has a name. It should be the feature name
@@ -33,14 +33,14 @@ class Node(object):
         self.is_leaf = False
         self.children = children
 
-    def get_child_node(self, feature_value)-> 'Node':
+    def get_child_node(self, feature_value) -> 'Node':
         if not self.is_numerical:
             return self.children[feature_value]
         else:
             if feature_value >= self.threshold:
-                return self.children['ge'] # ge stands for greater equal
+                return self.children['ge']  # ge stands for greater equal
             else:
-                return self.children['l'] # l stands for less than
+                return self.children['l']  # l stands for less than
 
 
 class RandomForest(object):
@@ -70,8 +70,7 @@ class RandomForest(object):
         self.trees = []
         self.criterion_func = self.entropy if criterion == 'entropy' else self.gini
 
-
-    def fit(self, X: pd.DataFrame, y_col: str)->float:
+    def fit(self, X: pd.DataFrame, y_col: str) -> float:
         """
         :param X: data
         :param y_col: label column in X
@@ -81,7 +80,7 @@ class RandomForest(object):
         # Your code
         return self.evaluate(X, y_col)
 
-    def predict(self, X: pd.DataFrame)->np.ndarray:
+    def predict(self, X: pd.DataFrame) -> np.ndarray:
         """
         :param X: data
         :return: aggregated predictions of all trees on X. Use voting mechanism for aggregation.
@@ -90,7 +89,7 @@ class RandomForest(object):
         # Your code
         return np.array(predictions)
 
-    def evaluate(self, X: pd.DataFrame, y_col: str)-> int:
+    def evaluate(self, X: pd.DataFrame, y_col: str) -> int:
         """
         :param X: data
         :param y_col: label column in X
@@ -100,7 +99,7 @@ class RandomForest(object):
         acc = sum(preds == X[y_col]) / len(preds)
         return acc
 
-    def generate_tree(self, X: pd.DataFrame, y_col: str,   features: Sequence[Mapping])->Node:
+    def generate_tree(self, X: pd.DataFrame, y_col: str,   features: Sequence[Mapping]) -> Node:
         """
         Method to generate a decision tree. This method uses self.split_tree() method to split a node.
         :param X:
@@ -112,7 +111,7 @@ class RandomForest(object):
         # Your code
         return root
 
-    def split_node(self, node: Node, X: pd.DataFrame, y_col:str, features: Sequence[Mapping]) -> None:
+    def split_node(self, node: Node, X: pd.DataFrame, y_col: str, features: Sequence[Mapping]) -> None:
         """
         This is probably the most important function you will implement. This function takes a node, uses criterion to
         find the best feature to slit it, and splits it into child nodes. I recommend to use revursive programming to
@@ -124,7 +123,6 @@ class RandomForest(object):
         :return:
         """
 
-
     def gini(self, X: pd.DataFrame, feature: Mapping, y_col: str) -> float:
         """
         Returns gini index of the give feature
@@ -135,7 +133,7 @@ class RandomForest(object):
         """
         pass
 
-    def entropy(self, X: pd.DataFrame, feature: Mapping, y_col: str) ->float:
+    def entropy(self, X: pd.DataFrame, feature: Mapping, y_col: str) -> float:
         """
         Returns gini index of the give feature
         :param X: data
@@ -145,20 +143,16 @@ class RandomForest(object):
         """
         pass
 
-
-    def process_features(self, X: pd.DataFrame, y_col: str)->Sequence[Mapping]:
+    def process_features(self, X: pd.DataFrame, y_col: str) -> Sequence[Mapping]:
         """
         :param X: data
         :param y_col: name of the label column in X
         :return:
         """
         features = []
-        for n,t in X.dtypes.items():
+        for n, t in X.dtypes.items():
             if n == y_col:
                 continue
             f = {'name': n, 'dtype': t}
             features.append(f)
         return features
-
-
-
