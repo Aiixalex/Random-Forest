@@ -2,8 +2,10 @@ import pandas as pd
 import argparse
 from random_forest import RandomForest
 
+
 def parse_args():
-    parser = argparse.ArgumentParser(description='Run random forrest with specified input arguments')
+    parser = argparse.ArgumentParser(
+        description='Run random forrest with specified input arguments')
     parser.add_argument('--n-classifiers', type=int,
                         help='number of features to use in a tree',
                         default=1)
@@ -28,6 +30,7 @@ def read_data(path):
     data = pd.read_csv(path)
     return data
 
+
 def main():
     n_classifiers, train_data_path, test_data_path, criterion, max_depth, min_sample_split, max_features = parse_args()
     train_data = read_data(train_data_path)
@@ -35,10 +38,10 @@ def main():
     # YOU NEED TO HANDLE MISSING VALUES HERE
     # ...
     random_forest = RandomForest(n_classifiers=n_classifiers,
-                  criterion = criterion,
-                  max_depth=  max_depth,
-                  min_samples_split = min_sample_split ,
-                  max_features = max_features )
+                                 criterion=criterion,
+                                 max_depth=max_depth,
+                                 min_samples_split=min_sample_split,
+                                 max_features=max_features)
 
     print(random_forest.fit(train_data, 'income'))
     print(random_forest.evaluate(train_data, 'income'))
@@ -47,4 +50,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

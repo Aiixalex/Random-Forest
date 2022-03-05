@@ -131,7 +131,7 @@ class RandomForest(object):
         :param y_col: name of the label column in X
         :return:
         """
-        pass
+        
 
     def entropy(self, X: pd.DataFrame, feature: Mapping, y_col: str) -> float:
         """
