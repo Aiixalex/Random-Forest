@@ -35,8 +35,13 @@ def main():
     n_classifiers, train_data_path, test_data_path, criterion, max_depth, min_sample_split, max_features = parse_args()
     train_data = read_data(train_data_path)
     test_data = read_data(test_data_path)
-    # YOU NEED TO HANDLE MISSING VALUES HERE
-    # ...
+    
+    for feature in train_data:
+        indexNames = train_data[train_data[feature] == ' ?'].index
+        train_data.drop(indexNames, inplace=True)
+    for feature in test_data:
+        indexNames = test_data[test_data[feature] == ' ?'].index
+        test_data.drop(indexNames, inplace=True)
     random_forest = RandomForest(n_classifiers=n_classifiers,
                                  criterion=criterion,
                                  max_depth=max_depth,

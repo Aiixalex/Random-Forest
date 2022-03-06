@@ -51,7 +51,7 @@ class RandomForest(object):
                  max_features: Optional[int] = None):
         """
         :param n_classifiers:
-            number of trees to generated in the forrest
+            number of trees to generated in the forest
         :param criterion:
             The function to measure the quality of a split. Supported criteria are “gini” for the Gini
             impurity and “entropy” for the information gain.
@@ -77,7 +77,17 @@ class RandomForest(object):
         :return: accuracy of training dataset
         """
         features = self.process_features(X, y_col)
-        # Your code
+        for i in range(self.n_classifiers):
+            new_df = pd.DataFrame(data = X)
+            for row_idx in range(len(X)):
+                new_df.iloc[row_idx] = X.iloc[random.randrange(len(X))]
+
+            random.shuffle(features)
+            features_partition = features[0:self.max_features]
+
+            new_tree = self.generate_tree(new_df, y_col, features_partition)
+            self.trees.append(new_tree)
+
         return self.evaluate(X, y_col)
 
     def predict(self, X: pd.DataFrame) -> np.ndarray:
@@ -86,7 +96,18 @@ class RandomForest(object):
         :return: aggregated predictions of all trees on X. Use voting mechanism for aggregation.
         """
         predictions = []
-        # Your code
+        for index, row in X.iterrows():
+            node_classes = []
+            for node in self.trees:
+                while not node.is_leaf():
+                    feature_name = node.name
+                    node = node.get_child_node(row[feature_name])
+
+                node_classes.append(node.node_class)
+
+            prediction = max(set(node_classes), key = node_classes.count)
+            predictions.append(prediction)
+
         return np.array(predictions)
 
     def evaluate(self, X: pd.DataFrame, y_col: str) -> int:
@@ -99,7 +120,7 @@ class RandomForest(object):
         acc = sum(preds == X[y_col]) / len(preds)
         return acc
 
-    def generate_tree(self, X: pd.DataFrame, y_col: str,   features: Sequence[Mapping]) -> Node:
+    def generate_tree(self, X: pd.DataFrame, y_col: str, features: Sequence[Mapping]) -> Node:
         """
         Method to generate a decision tree. This method uses self.split_tree() method to split a node.
         :param X:
@@ -108,7 +129,7 @@ class RandomForest(object):
         :return: root of the tree
         """
         root = Node(X.shape[0], X[y_col].mode(), 0)
-        # Your code
+        self.split_node(root, X, y_col, features)
         return root
 
     def split_node(self, node: Node, X: pd.DataFrame, y_col: str, features: Sequence[Mapping]) -> None:
@@ -122,8 +143,55 @@ class RandomForest(object):
         :param features:
         :return:
         """
+        min_gini_score = 1
+        best_feature = None
+        best_threshold = None
+        for feature in features:
+            if feature['dtype'] == 'int64':
+                thresholds = np.unique([np.percentile(X[feature['name']], q) for q in np.linspace(0, 100, 100)])
+                for threshold in thresholds:
+                    gini_score = self.gini(X, feature, y_col, threshold)
+                    if gini_score < min_gini_score:
+                        min_gini_score = gini_score
+                        best_feature = feature
+                        best_threshold = threshold
+            elif feature['dtype'] == 'object':
+                gini_score = self.gini(X, feature, y_col, None)
+                if gini_score < min_gini_score:
+                    min_gini_score = gini_score
+                    best_feature = feature
 
-    def gini(self, X: pd.DataFrame, feature: Mapping, y_col: str) -> float:
+        node.name = best_feature['name']
+        children = {}
+        if best_feature['dtype'] == 'object':
+            node.is_numerical = False
+
+            for feature_value in X[best_feature['name']].unique():
+                X_subset = X.loc[X[best_feature['name']] == feature_value]
+                is_single_class = (len(X_subset[y_col].value_counts()) == 1)
+                children[feature_value] = Node(len(X_subset), X_subset[y_col].mode(), node.depth + 1, is_single_class)
+
+                if not is_single_class & (node.depth <= (self.max_depth - 1)) & (len(X_subset) >= self.min_samples_split):
+                    self.split_node(children[feature_value], X_subset, y_col, features)
+
+        elif best_feature['dtype'] == 'int64':
+            node.is_numerical = True
+            node.threshold = best_threshold
+
+            X_subsets = {}
+            X_subsets['l'] = X.loc[X[best_feature['name']] < best_threshold]
+            X_subsets['ge'] = X.loc[X[best_feature['name']] >= best_threshold]
+            for key in X_subsets.keys():
+                X_subset = X_subsets[key]
+                is_single_class = (len(X_subset[y_col].value_counts()) == 1)
+                children[key] = Node(len(X_subset), X_subset[y_col].mode(), node.depth + 1, is_single_class)
+
+                if not is_single_class & (node.depth <= (self.max_depth - 1)) & (len(X_subset) >= self.min_samples_split):
+                    self.split_node(children[key], X_subset, y_col, features)
+
+        node.set_children(children)
+
+    def gini(self, X: pd.DataFrame, feature: Mapping, y_col: str, threshold: int) -> float:
         """
         Returns gini index of the give feature
         :param X: data
@@ -131,7 +199,39 @@ class RandomForest(object):
         :param y_col: name of the label column in X
         :return:
         """
-        
+
+        gini_score = 0
+
+        size_dataset = X.shape[0]
+        num_of_label_vals = len(X[y_col].unique())
+
+        if feature['dtype'] == 'object':
+            for feature_value in X[feature['name']].unique():
+                X_subset = X.loc[X[feature['name']] == feature_value]
+
+                gini = 1
+
+                for label_val in X[y_col].unique():
+                    gini -= ((len(X_subset.loc[X[y_col] == label_val]) / len(X_subset)) ** 2)
+
+                gini_score += len(X_subset) / size_dataset * gini
+
+        elif feature['dtype'] == 'int64':
+            
+            X_subsets = {}
+            X_subsets['l'] = X.loc[X[feature['name']] < threshold]
+            X_subsets['ge'] = X.loc[X[feature['name']] >= threshold]
+
+            for key in X_subsets.keys():
+                X_subset = X_subsets[key]
+                gini = 1
+                for label_val in X[y_col].unique():
+                    gini -= ((len(X_subset.loc[X[y_col] == label_val]) / len(X_subset)) ** 2)
+
+                gini_score += len(X_subset) / size_dataset * gini
+
+        return gini_score
+
 
     def entropy(self, X: pd.DataFrame, feature: Mapping, y_col: str) -> float:
         """
