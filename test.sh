@@ -1,1 +1,10 @@
-~/anaconda3/envs/cmpt459-random-forest/bin/python3 main.py
+~/anaconda3/envs/cmpt459-random-forest/bin/python3 main.py --n-classifiers=10 --criterion=gini --maxdepth=1 --min-sample-split=10 --max-features=10
+~/anaconda3/envs/cmpt459-random-forest/bin/python3 main.py --n-classifiers=10 --criterion=gini --maxdepth=2 --min-sample-split=10 --max-features=10
+~/anaconda3/envs/cmpt459-random-forest/bin/python3 main.py --n-classifiers=10 --criterion=gini --maxdepth=3 --min-sample-split=10 --max-features=10
+~/anaconda3/envs/cmpt459-random-forest/bin/python3 main.py --n-classifiers=10 --criterion=gini --maxdepth=4 --min-sample-split=10 --max-features=10
+~/anaconda3/envs/cmpt459-random-forest/bin/python3 main.py --n-classifiers=10 --criterion=gini --maxdepth=5 --min-sample-split=10 --max-features=10
+~/anaconda3/envs/cmpt459-random-forest/bin/python3 main.py --n-classifiers=10 --criterion=gini --maxdepth=6 --min-sample-split=10 --max-features=10
+~/anaconda3/envs/cmpt459-random-forest/bin/python3 main.py --n-classifiers=10 --criterion=gini --maxdepth=7 --min-sample-split=10 --max-features=10
+~/anaconda3/envs/cmpt459-random-forest/bin/python3 main.py --n-classifiers=10 --criterion=gini --maxdepth=8 --min-sample-split=10 --max-features=10
+~/anaconda3/envs/cmpt459-random-forest/bin/python3 main.py --n-classifiers=10 --criterion=gini --maxdepth=9 --min-sample-split=10 --max-features=10
+~/anaconda3/envs/cmpt459-random-forest/bin/python3 main.py --n-classifiers=10 --criterion=gini --maxdepth=10 --min-sample-split=10 --max-features=10
