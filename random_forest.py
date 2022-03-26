@@ -288,7 +288,7 @@ class RandomForest(object):
 
             for key in X_subsets.keys():
                 X_subset = X_subsets[key]
-                ent = 1
+                ent = 0
                 for label_val in X[y_col].unique():
                     if len(X_subset):
                         rate = len(X_subset.loc[X[y_col] == label_val]) / len(X_subset)
